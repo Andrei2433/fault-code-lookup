@@ -39,12 +39,20 @@ android.allow_backup = True
 # Artifact type
 android.debug_artifact = apk
 
+# ------------------------------
 # CI-friendly Android configuration
+# ------------------------------
+
+# Use pre-installed SDK + NDK
+android.sdk_path = $HOME/Android/Sdk
+android.ndk_path = $HOME/Android/Sdk/ndk/25.2.9519653
+
+# Target API and Build Tools compatible with CI
 android.api = 30
 android.build_tools_version = 30.0.3
+
+# Prevent Buildozer from trying to update SDK
 android.update_sdk = False
-android.sdk_path =
-android.ndk_path =
 
 [buildozer]
 
@@ -52,6 +60,6 @@ android.ndk_path =
 log_level = 2
 warn_on_root = 1
 
-# Build directories (optional)
+# Optional: build directories
 # build_dir = ./.buildozer
 # bin_dir = ./bin

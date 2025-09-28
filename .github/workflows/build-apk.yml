@@ -11,23 +11,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout the repository
       - uses: actions/checkout@v4
 
-      # 2️⃣ Install Java 11 and Buildozer dependencies
+      # Install Java 11, Python, and Buildozer
       - name: Install dependencies
         run: |
           sudo apt update
           sudo apt install -y openjdk-11-jdk python3-pip unzip git build-essential
           pip install --user cython buildozer
 
-      # 3️⃣ Build APK with Buildozer (no Docker)
+      # Download Android SDK + NDK + Build Tools
+      - name: Setup Android SDK/NDK
+        run: |
+          mkdir -p $HOME/Android/Sdk/cmdline-tools
+          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
+          unzip cmdline-tools.zip -d $HOME/Android/Sdk/cmdline-tools
+          yes | $HOME/Android/Sdk/cmdline-tools/cmdline-tools/bin/sdkmanager --licenses
+          $HOME/Android/Sdk/cmdline-tools/cmdline-tools/bin/sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3" "ndk;25.2.9519653"
+
+      # Build APK with Buildozer pointing to pre-installed SDK
       - name: Build APK
         run: |
-          export PATH=$PATH:$HOME/.local/bin
+          export PATH=$PATH:$HOME/.local/bin:$HOME/Android/Sdk/cmdline-tools/latest/bin:$HOME/Android/Sdk/platform-tools:$HOME/Android/Sdk/build-tools/30.0.3
           buildozer android debug
 
-      # 4️⃣ Upload the APK artifact
+      # Upload APK artifact
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
