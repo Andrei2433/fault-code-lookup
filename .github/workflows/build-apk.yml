@@ -1,29 +1,30 @@
-name: Build Android APK (Docker)
-
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main
-
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: kivy/buildozer:latest
 
     steps:
-      # 1️⃣ Checkout the repo
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      # 2️⃣ Build APK inside Docker container
-      - name: Build APK with Buildozer
+      - name: Install Java and dependencies
         run: |
+          sudo apt update
+          sudo apt install -y openjdk-11-jdk python3-pip unzip git build-essential
+          pip install --user cython buildozer
+
+      - name: Set up Android SDK
+        run: |
+          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
+          mkdir -p $HOME/Android/Sdk/cmdline-tools
+          unzip cmdline-tools.zip -d $HOME/Android/Sdk/cmdline-tools
+          yes | $HOME/Android/Sdk/cmdline-tools/cmdline-tools/bin/sdkmanager --licenses
+          $HOME/Android/Sdk/cmdline-tools/cmdline-tools/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;36.1.0"
+
+      - name: Build APK
+        run: |
+          export PATH=$PATH:$HOME/.local/bin:$HOME/Android/Sdk/cmdline-tools/latest/bin:$HOME/Android/Sdk/platform-tools:$HOME/Android/Sdk/build-tools/36.1.0
           buildozer android debug
 
-      # 3️⃣ Upload APK artifact
-      - name: Upload APK artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: faultcodes-apk
