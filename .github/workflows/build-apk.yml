@@ -15,7 +15,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Set up Java 17 (required for latest SDK tools)
+      # 2️⃣ Set up Java 17
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
@@ -32,14 +32,13 @@ jobs:
                              libgl1-mesa-dev libgles2-mesa-dev \
                              zlib1g-dev libncurses5-dev libsqlite3-dev \
                              libgdbm-dev libbz2-dev liblzma-dev
-
           pip install --user cython buildozer
 
       # 4️⃣ Set up Android SDK
       - name: Set up Android SDK
         uses: android-actions/setup-android@v2
 
-      # 5️⃣ Accept all licenses
+      # 5️⃣ Accept SDK licenses
       - name: Accept Android SDK licenses
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
 
@@ -49,7 +48,7 @@ jobs:
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;36.1.0" "platforms;android-33"
 
       # 7️⃣ Configure environment variables for Buildozer
-      - name: Configure Buildozer environment
+      - name: Configure Buildozer to use pre-installed SDK
         run: |
           echo "ANDROID_HOME=$HOME/Android/Sdk" >> $GITHUB_ENV
           echo "ANDROIDSDK=$HOME/Android/Sdk" >> $GITHUB_ENV
