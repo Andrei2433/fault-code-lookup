@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Verify database on Android/Termux
+Simple database verification for Android/Termux
 """
 
 import sqlite3
@@ -13,12 +13,16 @@ def verify_database():
     
     if not os.path.exists("fault_codes.db"):
         print("ERROR: fault_codes.db not found!")
-        print("Make sure you've transferred and decompressed the database.")
+        print("Please download and decompress the database first.")
         return False
     
     # Get file size
     db_size = os.path.getsize("fault_codes.db")
     print(f"Database file size: {db_size:,} bytes ({db_size/1024/1024:.1f} MB)")
+    
+    if db_size < 1000000:  # Less than 1MB is suspicious
+        print("WARNING: Database file seems too small!")
+        return False
     
     try:
         conn = sqlite3.connect("fault_codes.db")
@@ -54,13 +58,13 @@ def verify_database():
         print(f"  PDF codes: {pdf_codes:,}")
         print(f"  Ross-Tech codes: {ross_tech_codes:,}")
         
-        if pdf_codes > 0:
-            print("\n✅ SUCCESS: Database contains PDF definitions!")
-            print("Your Flask app should now show proper descriptions for PDF codes.")
+        if pdf_codes > 0 and total > 2000:
+            print("\n✅ SUCCESS: Database is working correctly!")
+            print("Your Flask app should now show proper descriptions for all codes.")
             return True
         else:
-            print("\n❌ ERROR: No PDF definitions found!")
-            print("The database may not be properly updated.")
+            print("\n❌ ERROR: Database appears incomplete!")
+            print("Please re-download the database.")
             return False
             
     except sqlite3.Error as e:
