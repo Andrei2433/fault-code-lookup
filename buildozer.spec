@@ -9,6 +9,7 @@ source.include_exts = py,png,jpg,kv,atlas,db
 source.include_patterns = fault_codes.db
 source.main = main.py
 
+# Pin for CI stability
 requirements = python3==3.10, kivy==2.3.0
 
 orientation = portrait
@@ -29,6 +30,7 @@ android.logcat_filters = *:S python:D
 android.allow_backup = True
 android.debug_artifact = apk
 
+# Use latest recipes
 p4a.branch = master
 
 [buildozer]

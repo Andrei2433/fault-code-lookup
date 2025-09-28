@@ -11,30 +11,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout repo
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2️⃣ Build APK with official Kivy Buildozer Action
-      - name: Build APK
-        uses: kivy/buildozer-action@v1
+      # Build using the recommended action (wraps the official Buildozer docker image)
+      - name: Build with Buildozer
+        id: buildozer
+        uses: ArtemSBulgakov/buildozer-action@v1
         with:
+          # Your buildozer.spec is in repo root
+          workdir: .
+          buildozer_version: stable
           command: buildozer -v android debug
 
-      # 3️⃣ Upload APK artifact (download from Actions tab)
-      - name: Upload APK
+      # Upload the exact APK path returned by the action
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: faultcodes-apk
-          path: bin/*.apk
+          path: ${{ steps.buildozer.outputs.filename }}
 
-      # 4️⃣ Optional: Create GitHub Release with APK attached
+      # Optional: create a GitHub Release with the APK attached
       - name: Create Release
         if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ github.run_number }}
           name: Release v${{ github.run_number }}
-          files: bin/*.apk
+          files: ${{ steps.buildozer.outputs.filename }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
