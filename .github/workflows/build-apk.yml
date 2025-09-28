@@ -4,7 +4,7 @@ on:
   workflow_dispatch:   # allows manual trigger
   push:
     branches:
-      - main           # or your main branch
+      - main
 
 jobs:
   build:
@@ -38,12 +38,17 @@ jobs:
       - name: Accept Android SDK licenses
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
 
-      - name: Install Build Tools
-        run: $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;36.1.0"
+      - name: Install Build Tools and Platform
+        run: |
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;36.1.0" "platforms;android-33"
+
+      - name: Set Android environment variables
+        run: |
+          echo "ANDROID_HOME=$HOME/Android/Sdk" >> $GITHUB_ENV
+          echo "PATH=$PATH:$HOME/.local/bin:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/36.1.0" >> $GITHUB_ENV
 
       - name: Build APK with Buildozer
         run: |
-          export PATH=$PATH:$HOME/.local/bin
           buildozer android debug
 
       - name: Upload APK artifact
