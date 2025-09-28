@@ -36,10 +36,10 @@ jobs:
         uses: android-actions/setup-android@v2
 
       - name: Accept Android SDK licenses
-        run: yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
 
       - name: Install Build Tools
-        run: sdkmanager "build-tools;36.1.0"
+        run: $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;36.1.0"
 
       - name: Build APK with Buildozer
         run: |
