@@ -9,20 +9,22 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    # Use a stable Docker image for Buildozer + Android SDK
     container:
-      image: kivy/buildozer:latest
+      image: kivy/buildozer:python3.10-android-33
 
     steps:
-      # 1️⃣ Checkout the repo
+      # 1️⃣ Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Build APK inside Docker container
+      # 2️⃣ Build the APK inside the container
       - name: Build APK with Buildozer
         run: |
           buildozer android debug
 
-      # 3️⃣ Upload APK artifact
+      # 3️⃣ Upload the APK artifact
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
