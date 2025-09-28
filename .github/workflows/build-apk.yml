@@ -24,6 +24,13 @@ jobs:
         sudo apt update
         sudo apt install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev
 
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+
+    - name: Accept Android SDK licenses
+      run: |
+        yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses
+
     - name: Install buildozer in virtual environment
       run: |
         python3 -m venv buildozer_env
@@ -35,6 +42,9 @@ jobs:
       run: |
         source buildozer_env/bin/activate
         buildozer android debug
+      env:
+        ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
+        ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
