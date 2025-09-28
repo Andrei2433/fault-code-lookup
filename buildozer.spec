@@ -1,5 +1,4 @@
 [app]
-
 # Application metadata
 title = Ross-Tech VCDS Fault Codes
 package.name = faultcodes
@@ -11,8 +10,11 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,db
 source.include_patterns = fault_codes.db
 
-# Requirements
-requirements = python3,kivy,sqlite3
+# Requirements - pinned versions for stability
+requirements = python3==3.10, kivy==2.3.0
+
+# Entry point
+source.main = main.py
 
 # Orientation and display
 orientation = portrait
@@ -20,6 +22,13 @@ fullscreen = 0
 
 # Permissions
 android.permissions = WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE
+
+# Modern Android config
+android.api = 34
+android.minapi = 21
+android.ndk_api = 21
+android.archs = arm64-v8a, armeabi-v7a
+android.bootstrap = sdl2
 
 # AndroidX support
 android.use_androidx = True
@@ -30,36 +39,16 @@ android.theme = "@android:style/Theme.NoTitleBar"
 # Logcat filters
 android.logcat_filters = *:S python:D
 
-# Architecture
-android.archs = arm64-v8a, armeabi-v7a
-
 # Backup
 android.allow_backup = True
 
 # Artifact type
 android.debug_artifact = apk
 
-# ------------------------------
-# CI-friendly Android configuration
-# ------------------------------
-
-# Point to pre-installed SDK and NDK in GitHub Actions
-android.sdk_path = $HOME/Android/Sdk
-android.ndk_path = $HOME/Android/Sdk/ndk/25.2.9519653
-
-# Use API 30 and Build Tools 30.0.3 to avoid interactive license prompts
-android.api = 30
-android.build_tools_version = 30.0.3
-
-# Prevent Buildozer from trying to update SDK or Build Tools
-android.update_sdk = False
+# P4A branch
+p4a.branch = master
 
 [buildozer]
-
 # Logging
 log_level = 2
 warn_on_root = 1
-
-# Optional: specify build directories
-# build_dir = ./.buildozer
-# bin_dir = ./bin

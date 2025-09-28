@@ -12,40 +12,39 @@ jobs:
 
     steps:
       # 1️⃣ Checkout repo
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      # 2️⃣ Install Java, Python dependencies, Buildozer
-      - name: Install dependencies
+      # 2️⃣ Cache Gradle for faster builds
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      # 3️⃣ Cache Buildozer for faster builds
+      - name: Cache Buildozer
+        uses: actions/cache@v4
+        with:
+          path: |
+            .buildozer
+            .gradle
+          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
+          restore-keys: |
+            ${{ runner.os }}-buildozer-
+
+      # 4️⃣ Build APK using official Kivy Docker image
+      - name: Build APK with Buildozer
         run: |
-          sudo apt update
-          sudo apt install -y openjdk-11-jdk python3-pip unzip git build-essential
-          pip install --user cython buildozer
-
-      # 3️⃣ Download Android SDK + NDK + Build Tools
-      - name: Setup Android SDK/NDK
-        run: |
-          mkdir -p $HOME/Android/Sdk/cmdline-tools
-          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
-          unzip cmdline-tools.zip -d $HOME/Android/Sdk/cmdline-tools
-          yes | $HOME/Android/Sdk/cmdline-tools/cmdline-tools/bin/sdkmanager --licenses
-          $HOME/Android/Sdk/cmdline-tools/cmdline-tools/bin/sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3" "ndk;25.2.9519653"
-
-      # 4️⃣ Build APK with Buildozer
-      - name: Build APK
-        run: |
-          # Set Java path
-          export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
-          export PATH=$JAVA_HOME/bin:$PATH
-
-          # Add Buildozer, SDK, Build Tools, NDK to PATH
-          export PATH=$PATH:$HOME/.local/bin
-          export PATH=$PATH:$HOME/Android/Sdk/cmdline-tools/latest/bin
-          export PATH=$PATH:$HOME/Android/Sdk/platform-tools
-          export PATH=$PATH:$HOME/Android/Sdk/build-tools/30.0.3
-          export PATH=$PATH:$HOME/Android/Sdk/ndk/25.2.9519653
-
-          # Build APK
-          buildozer android debug
+          docker run --rm \
+            -v "$PWD":/home/user/app \
+            -w /home/user/app \
+            kivy/buildozer \
+            buildozer -v android debug
 
       # 5️⃣ Upload APK artifact
       - name: Upload APK
@@ -53,3 +52,16 @@ jobs:
         with:
           name: faultcodes-apk
           path: bin/*.apk
+
+      # 6️⃣ Create GitHub Release (optional - for easy download)
+      - name: Create Release
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ github.run_number }}
+          name: Release v${{ github.run_number }}
+          files: bin/*.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
