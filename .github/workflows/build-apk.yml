@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: kivy/buildozer:python3.11-android-33
+      image: kivy/buildozer:latest
 
     steps:
       # 1️⃣ Checkout the repo
