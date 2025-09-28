@@ -71,49 +71,391 @@ def home():
     <head>
         <title>VCDS Fault Code Lookup</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            h1 { color: #2E86AB; }
-            .error { color: #E17055; font-weight: bold; }
-            .result { background: #f9f9f9; padding: 10px; border-radius: 8px; }
-            input[type=text] { width: 70%; padding: 8px; }
-            button { padding: 8px 12px; }
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+            
+            body { 
+                font-family: 'Courier New', 'Consolas', 'Monaco', monospace;
+                line-height: 1.4;
+                color: #00FF00;
+                background: #000000;
+                min-height: 100vh;
+                padding: 10px;
+            }
+            
+            .container {
+                max-width: 900px;
+                margin: 0 auto;
+                background: #000000;
+                border: 2px solid #00FF00;
+                box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+                overflow: hidden;
+            }
+            
+            .header {
+                background: #001100;
+                color: #00FF00;
+                padding: 15px 20px;
+                border-bottom: 2px solid #00FF00;
+                text-align: center;
+            }
+            
+            h1 { 
+                font-size: 1.8rem;
+                font-weight: bold;
+                margin-bottom: 5px;
+                text-shadow: 0 0 10px #00FF00;
+                letter-spacing: 2px;
+            }
+            
+            .subtitle {
+                font-size: 0.9rem;
+                color: #00AA00;
+                font-weight: normal;
+            }
+            
+            .search-section {
+                padding: 20px;
+                background: #000000;
+            }
+            
+            .search-form {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 15px;
+                align-items: center;
+            }
+            
+            .search-label {
+                color: #00FF00;
+                font-weight: bold;
+                font-size: 14px;
+                white-space: nowrap;
+            }
+            
+            input[type=text] { 
+                flex: 1;
+                padding: 8px 12px;
+                border: 2px solid #00FF00;
+                border-radius: 0;
+                font-size: 14px;
+                font-family: 'Courier New', monospace;
+                background: #000000;
+                color: #00FF00;
+                outline: none;
+            }
+            
+            input[type=text]:focus {
+                box-shadow: 0 0 10px #00FF00;
+            }
+            
+            button { 
+                padding: 8px 16px;
+                background: #000000;
+                color: #00FF00;
+                border: 2px solid #00FF00;
+                font-size: 14px;
+                font-weight: bold;
+                cursor: pointer;
+                font-family: 'Courier New', monospace;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+            
+            button:hover {
+                background: #00FF00;
+                color: #000000;
+                box-shadow: 0 0 15px #00FF00;
+            }
+            
+            .error { 
+                color: #FF0000; 
+                font-weight: bold;
+                background: #220000;
+                padding: 10px 15px;
+                border: 1px solid #FF0000;
+                margin: 15px 0;
+                font-size: 14px;
+            }
+            
+            .result { 
+                background: #000000; 
+                border: 2px solid #00FF00;
+                margin: 15px 0;
+                overflow: hidden;
+            }
+            
+            .result-header {
+                background: #001100;
+                color: #00FF00;
+                padding: 15px 20px;
+                border-bottom: 2px solid #00FF00;
+            }
+            
+            .result-title {
+                font-size: 1.2rem;
+                font-weight: bold;
+                margin-bottom: 5px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+            
+            .result-content {
+                padding: 20px;
+                background: #000000;
+            }
+            
+            .section {
+                margin-bottom: 20px;
+                padding-bottom: 15px;
+                border-bottom: 1px solid #003300;
+            }
+            
+            .section:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+            }
+            
+            .section-title {
+                font-size: 1rem;
+                font-weight: bold;
+                color: #00FF00;
+                margin-bottom: 10px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                background: #001100;
+                padding: 8px 12px;
+                border: 1px solid #00FF00;
+            }
+            
+            .section-content {
+                color: #00AA00;
+                line-height: 1.5;
+                font-size: 13px;
+                padding: 10px 0;
+                white-space: pre-wrap;
+            }
+            
+            .fault-title {
+                font-size: 1.1rem;
+                font-weight: bold;
+                color: #00FF00;
+                margin-bottom: 10px;
+                background: #001100;
+                padding: 10px;
+                border: 1px solid #00FF00;
+            }
+            
+            .fault-code-bold {
+                font-weight: bold;
+                background: #00FF00;
+                color: #000000;
+                padding: 2px 4px;
+                font-size: 1.1em;
+            }
+            
+            .multiple-results {
+                background: #001100;
+                padding: 15px;
+                border: 1px solid #00FF00;
+            }
+            
+            .multiple-results h3 {
+                color: #00FF00;
+                margin-bottom: 15px;
+                font-size: 1.1rem;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+            
+            .multiple-results ul {
+                list-style: none;
+            }
+            
+            .multiple-results li {
+                background: #000000;
+                padding: 8px 12px;
+                margin-bottom: 5px;
+                border: 1px solid #00FF00;
+                font-size: 13px;
+            }
+            
+            .multiple-results li:last-child {
+                margin-bottom: 0;
+            }
+            
+            .code-badge {
+                background: #00FF00;
+                color: #000000;
+                padding: 2px 6px;
+                font-weight: bold;
+                font-size: 0.9rem;
+                margin-right: 8px;
+            }
+            
+            .status-bar {
+                background: #001100;
+                color: #00FF00;
+                padding: 5px 20px;
+                border-top: 2px solid #00FF00;
+                font-size: 12px;
+                text-align: right;
+            }
+            
+            .diagnostic-info {
+                background: #001100;
+                border: 1px solid #00FF00;
+                padding: 10px;
+                margin: 10px 0;
+                font-size: 12px;
+                color: #00AA00;
+            }
+            
+            @media (max-width: 600px) {
+                body {
+                    padding: 5px;
+                }
+                
+                .header {
+                    padding: 10px;
+                }
+                
+                h1 {
+                    font-size: 1.4rem;
+                }
+                
+                .search-section {
+                    padding: 15px;
+                }
+                
+                .search-form {
+                    flex-direction: column;
+                    align-items: stretch;
+                }
+                
+                .search-label {
+                    margin-bottom: 5px;
+                }
+                
+                .result-content {
+                    padding: 15px;
+                }
+                
+                .section-title {
+                    font-size: 0.9rem;
+                }
+            }
         </style>
     </head>
     <body>
-        <h1>VCDS Fault Code Lookup</h1>
-        <form method="get">
-            <input type="text" name="code" placeholder="Enter code (e.g. 00532)" value="{{code}}">
-            <button type="submit">Search</button>
-        </form>
-
-        {% if error %}
-          <p class="error">{{error}}</p>
-        {% endif %}
-
-        {% if result %}
-          {% if result[0] is string %}
-            <div class="result">
-              <h3>Fault Code: {{result[0]}}</h3>
-              {% if result[1] %}<p><b>{{result[1]}}</b></p>{% endif %}
-              {% if result[2] %}<p><b>Full Info:</b><br>{{result[2]}}</p>{% endif %}
-              {% if result[3] %}<p><b>Symptoms:</b><br>{{result[3]}}</p>{% endif %}
-              {% if result[4] %}<p><b>Causes:</b><br>{{result[4]}}</p>{% endif %}
-              {% if result[5] %}<p><b>Solutions:</b><br>{{result[5]}}</p>{% endif %}
-              {% if result[6] %}<p><b>Notes:</b><br>{{result[6]}}</p>{% endif %}
-              {% if result[7] %}<p><b>Technical Info:</b><br>{{result[7]}}</p>{% endif %}
+        <div class="container">
+            <div class="header">
+                <h1>VCDS FAULT CODE LOOKUP</h1>
+                <p class="subtitle">VAG-COM Diagnostic System v1.0</p>
             </div>
-          {% else %}
-            <div class="result">
-              <h3>Multiple results for '{{code}}'</h3>
-              <ul>
-              {% for r in result %}
-                <li><b>{{r[0]}}</b> - {{r[1]}}</li>
-              {% endfor %}
-              </ul>
+            
+            <div class="search-section">
+                <div class="diagnostic-info">
+                    <strong>SYSTEM STATUS:</strong> ONLINE | <strong>CONNECTION:</strong> LOCAL | <strong>DATABASE:</strong> LOADED
+                </div>
+                
+                <form method="get" class="search-form">
+                    <label class="search-label">FAULT CODE:</label>
+                    <input type="text" name="code" placeholder="Enter 5-digit fault code (e.g. 00532)" value="{{code}}">
+                    <button type="submit">SCAN</button>
+                </form>
+
+                {% if error %}
+                  <div class="error">{{error}}</div>
+                {% endif %}
+
+                {% if result %}
+                  {% if result[0] is string %}
+                    <div class="result">
+                      <div class="result-header">
+                        <div class="result-title">FAULT CODE: <span class="code-badge">{{result[0]}}</span></div>
+                        {% if result[1] %}
+                          <div class="fault-title">
+                            {% set title = result[1] %}
+                            {% set fault_code = result[0] %}
+                            {% if fault_code in title %}
+                              {{title.replace(fault_code, '<span class="fault-code-bold">' + fault_code + '</span>')|safe}}
+                            {% else %}
+                              {{title}}
+                            {% endif %}
+                          </div>
+                        {% endif %}
+                      </div>
+                      <div class="result-content">
+                        {% if result[2] %}
+                          <div class="section">
+                            <div class="section-title">FULL INFORMATION</div>
+                            <div class="section-content">{{result[2]}}</div>
+                          </div>
+                        {% endif %}
+                        {% if result[3] %}
+                          <div class="section">
+                            <div class="section-title">SYMPTOMS</div>
+                            <div class="section-content">{{result[3]}}</div>
+                          </div>
+                        {% endif %}
+                        {% if result[4] %}
+                          <div class="section">
+                            <div class="section-title">CAUSES</div>
+                            <div class="section-content">{{result[4]}}</div>
+                          </div>
+                        {% endif %}
+                        {% if result[5] %}
+                          <div class="section">
+                            <div class="section-title">SOLUTIONS</div>
+                            <div class="section-content">{{result[5]}}</div>
+                          </div>
+                        {% endif %}
+                        {% if result[6] %}
+                          <div class="section">
+                            <div class="section-title">BONUS NOTES</div>
+                            <div class="section-content">{{result[6]}}</div>
+                          </div>
+                        {% endif %}
+                        {% if result[7] %}
+                          <div class="section">
+                            <div class="section-title">TECHNICAL INFORMATION</div>
+                            <div class="section-content">{{result[7]}}</div>
+                          </div>
+                        {% endif %}
+                      </div>
+                      <div class="status-bar">
+                        SCAN COMPLETE | FAULT CODE: {{result[0]}} | STATUS: ANALYZED
+                      </div>
+                    </div>
+                  {% else %}
+                    <div class="result">
+                      <div class="result-header">
+                        <div class="result-title">MULTIPLE RESULTS FOR '{{code}}'</div>
+                      </div>
+                      <div class="result-content">
+                        <div class="multiple-results">
+                          <h3>FOUND {{result|length}} MATCHING CODES:</h3>
+                          <ul>
+                          {% for r in result %}
+                            <li><span class="code-badge">{{r[0]}}</span> - {{r[1]}}</li>
+                          {% endfor %}
+                          </ul>
+                        </div>
+                      </div>
+                      <div class="status-bar">
+                        SCAN COMPLETE | MULTIPLE MATCHES FOUND | SELECT SPECIFIC CODE
+                      </div>
+                    </div>
+                  {% endif %}
+                {% endif %}
             </div>
-          {% endif %}
-        {% endif %}
+        </div>
     </body>
     </html>
     """, code=code, result=result, error=error)
