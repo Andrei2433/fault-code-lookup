@@ -15,23 +15,19 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    # 2️⃣ Build APK with Buildozer (stable action release)
+    # 2️⃣ Build APK with Buildozer (alternative action)
     - name: Build with Buildozer
       id: buildozer
-      uses: ArtemSBulgakov/buildozer-action@v1.2.0
+      uses: Sygil-Dev/buildozer-action@master
       with:
-        workdir: .
-        buildozer_version: stable
-        command: buildozer -v android debug
-      env:
-        USER: runner
+        command: buildozer android debug
 
     # 3️⃣ Upload APK artifact (accessible in Actions → Artifacts)
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: faultcodes-apk
-        path: ${{ steps.buildozer.outputs.filename }}
+        path: bin/*.apk
 
     # 4️⃣ Optional: make a GitHub Release each push to main
     - name: Create Release
@@ -40,6 +36,6 @@ jobs:
       with:
         tag_name: v${{ github.run_number }}
         name: Release v${{ github.run_number }}
-        files: ${{ steps.buildozer.outputs.filename }}
+        files: bin/*.apk
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
