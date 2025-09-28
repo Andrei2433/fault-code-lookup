@@ -15,45 +15,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2️⃣ Cache Gradle for faster builds
-      - name: Cache Gradle
-        uses: actions/cache@v4
+      # 2️⃣ Build APK with official Kivy Buildozer Action
+      - name: Build APK
+        uses: kivy/buildozer-action@v1
         with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+          command: buildozer -v android debug
 
-      # 3️⃣ Cache Buildozer for faster builds
-      - name: Cache Buildozer
-        uses: actions/cache@v4
-        with:
-          path: |
-            .buildozer
-            .gradle
-          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
-          restore-keys: |
-            ${{ runner.os }}-buildozer-
-
-      # 4️⃣ Build APK using official Kivy Docker image
-      - name: Build APK with Buildozer
-        run: |
-          docker run --rm \
-            -v "$PWD":/home/user/app \
-            -w /home/user/app \
-            kivy/buildozer \
-            buildozer -v android debug
-
-      # 5️⃣ Upload APK artifact
+      # 3️⃣ Upload APK artifact (download from Actions tab)
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: faultcodes-apk
           path: bin/*.apk
 
-      # 6️⃣ Create GitHub Release (optional - for easy download)
+      # 4️⃣ Optional: Create GitHub Release with APK attached
       - name: Create Release
         if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v1
@@ -61,7 +36,5 @@ jobs:
           tag_name: v${{ github.run_number }}
           name: Release v${{ github.run_number }}
           files: bin/*.apk
-          draft: false
-          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
