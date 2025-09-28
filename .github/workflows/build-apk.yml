@@ -1,7 +1,7 @@
 name: Build Android APK
 
 on:
-  workflow_dispatch:   # allows manual trigger
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -42,10 +42,12 @@ jobs:
         run: |
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;36.1.0" "platforms;android-33"
 
-      - name: Set Android environment variables
+      - name: Configure Buildozer to use pre-installed SDK
         run: |
           echo "ANDROID_HOME=$HOME/Android/Sdk" >> $GITHUB_ENV
-          echo "PATH=$PATH:$HOME/.local/bin:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/36.1.0" >> $GITHUB_ENV
+          echo "ANDROIDSDK=$HOME/Android/Sdk" >> $GITHUB_ENV
+          echo "ANDROID_NDK_HOME=$HOME/Android/Sdk/ndk-bundle" >> $GITHUB_ENV
+          echo "PATH=$PATH:$HOME/.local/bin:$HOME/Android/Sdk/cmdline-tools/latest/bin:$HOME/Android/Sdk/platform-tools:$HOME/Android/Sdk/build-tools/36.1.0" >> $GITHUB_ENV
 
       - name: Build APK with Buildozer
         run: |
